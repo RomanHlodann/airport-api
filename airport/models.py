@@ -76,7 +76,8 @@ class Flight(models.Model):
     arrival_time = models.DateTimeField()
 
     def __str__(self):
-        return f"{str(self.route)} by {str(self.airplane)}"
+        return (f"{str(self.route)} by {str(self.airplane)}"
+                f"at {str(self.departure_time)}")
 
 
 class Order(models.Model):
