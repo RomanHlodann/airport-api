@@ -18,3 +18,8 @@ class Route(models.Model):
         related_name="destination_routes"
     )
     distance = models.IntegerField()
+
+
+class Crew(models.Model):
+    first_name = models.CharField(max_length=60)
+    last_name = models.CharField(max_length=60)
