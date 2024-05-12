@@ -45,3 +45,9 @@ class RouteDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
+
+
+class CrewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crew
+        fields = ("id", "first_name", "last_name", "full_name")
