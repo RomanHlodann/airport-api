@@ -14,7 +14,8 @@ from airport.serializers import (
     AirportSerializer,
     RouteSerializer,
     RouteListSerializer,
-    RouteDetailSerializer
+    RouteDetailSerializer,
+    CrewSerializer
 )
 
 
@@ -33,3 +34,8 @@ class RouteViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return RouteDetailSerializer
         return self.serializer_class
+
+
+class CrewViewSet(viewsets.ModelViewSet):
+    queryset = Crew.objects.all()
+    serializer_class = CrewSerializer
