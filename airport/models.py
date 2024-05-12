@@ -23,3 +23,7 @@ class Route(models.Model):
 class Crew(models.Model):
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
+
+
+class AirplaneType(models.Model):
+    name = models.CharField(max_length=100)
