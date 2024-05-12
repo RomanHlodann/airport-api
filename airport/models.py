@@ -29,8 +29,8 @@ class Route(models.Model):
     distance = models.IntegerField()
 
     def __str__(self):
-        return (f"from {self.source.closest_big_city} "
-                f"to {self.destination.closest_big_city}")
+        return (f"from {self.source.name} "
+                f"to {self.destination.name}")
 
 
 class Crew(models.Model):
