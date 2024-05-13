@@ -1,3 +1,4 @@
+from django.db.models import F, Count
 from rest_framework import viewsets, mixins
 from rest_framework.pagination import PageNumberPagination
 
@@ -73,9 +74,16 @@ class FlightViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = (self.queryset.select_related("airplane")
-                    .prefetch_related("crew"))
+                        .prefetch_related("crew"))
+        if self.action == "list":
+            queryset = queryset.annotate(
+                tickets_available=(
+                        F("airplane__rows") * F("airplane__seats_in_row")
+                        - Count("tickets")
+                )
+            )
         if self.action == "retrieve":
-            queryset.select_related("airplane__airplane_type")
+            queryset = queryset.select_related("airplane__airplane_type")
         return queryset
 
     def get_serializer_class(self):
