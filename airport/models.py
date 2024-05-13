@@ -96,6 +96,33 @@ class Flight(models.Model):
     arrival_time = models.DateTimeField()
     crew = models.ManyToManyField(Crew)
 
+    @staticmethod
+    def validata_dates(departure_time, arrival_time, error_to_raise):
+        if arrival_time < departure_time:
+            raise error_to_raise(
+                "Arrival time cannot be before departure"
+                f"{arrival_time} < {departure_time}"
+            )
+
+    def clean(self):
+        Flight.validata_dates(
+            self.departure_time,
+            self.arrival_time,
+            ValidationError,
+        )
+
+    def save(
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
+    ):
+        self.full_clean()
+        return super(Flight, self).save(
+            force_insert, force_update, using, update_fields
+        )
+
     def __str__(self):
         return (f"{str(self.route)} by {str(self.airplane)}"
                 f"at {str(self.departure_time)}")
