@@ -100,7 +100,7 @@ class Flight(models.Model):
     def validata_dates(departure_time, arrival_time, error_to_raise):
         if arrival_time < departure_time:
             raise error_to_raise(
-                "Arrival time cannot be before departure"
+                "Arrival time cannot be before departure "
                 f"{arrival_time} < {departure_time}"
             )
 
