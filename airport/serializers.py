@@ -74,13 +74,22 @@ class AirplaneListSerializer(AirplaneSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super(FlightSerializer, self).validate(attrs=attrs)
+        Flight.validata_dates(
+            attrs["departure_time"],
+            attrs["arrival_time"],
+            ValidationError
+        )
+        return data
+
     class Meta:
         model = Flight
         fields = ("id", "route", "airplane", "departure_time",
                   "arrival_time", "crew")
 
 
-class FlightListSerializer(serializers.ModelSerializer):
+class FlightListSerializer(FlightSerializer):
     crew = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="full_name"
     )
