@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import F, Count
 from rest_framework import viewsets, mixins, status
 from rest_framework.pagination import PageNumberPagination
@@ -99,7 +101,13 @@ class FlightViewSet(viewsets.ModelViewSet):
     serializer_class = FlightSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
+    @staticmethod
+    def _params_to_ints(qs):
+        """Converts a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
     def get_queryset(self):
+        """Retrieve the flights with filters"""
         queryset = (self.queryset.select_related("airplane")
                         .prefetch_related("crew"))
         if self.action == "list":
@@ -111,6 +119,24 @@ class FlightViewSet(viewsets.ModelViewSet):
             )
         if self.action == "retrieve":
             queryset = queryset.select_related("airplane__airplane_type")
+
+        route_id = self.request.query_params.get("route")
+        airplanes = self.request.query_params.get("airplanes")
+        departure_time = self.request.query_params.get("departure_time")
+        arrival_time = self.request.query_params.get("arrival_time")
+
+        if route_id:
+            queryset = queryset.filter(route_id=int(route_id))
+        if airplanes:
+            airplanes_ids = self._params_to_ints(airplanes)
+            queryset = queryset.filter(airplane_id__in=airplanes_ids)
+        if departure_time:
+            date = datetime.strptime(departure_time, "%Y-%m-%d").date()
+            queryset = queryset.filter(departure_time__date=date)
+        if arrival_time:
+            date = datetime.strptime(arrival_time, "%Y-%m-%d").date()
+            queryset = queryset.filter(arrival_time__date=date)
+
         return queryset
 
     def get_serializer_class(self):
