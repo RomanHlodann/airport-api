@@ -1,7 +1,9 @@
 from django.db.models import F, Count
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
 from airport.models import (
@@ -22,11 +24,10 @@ from airport.serializers import (
     AirplaneTypeSerializer,
     AirplaneSerializer,
     AirplaneListSerializer,
+    AirplaneImageSerializer,
     FlightSerializer,
     FlightListSerializer,
     FlightDetailSerializer,
-    TicketSerializer,
-    TicketListSerializer,
     OrderSerializer,
     OrderListSerializer
 )
@@ -69,9 +70,28 @@ class AirplaneViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
-        if self.action == "list":
+        if self.action in ("list", "retrieve"):
             return AirplaneListSerializer
+        if self.action == "upload_image":
+            return AirplaneImageSerializer
         return self.serializer_class
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=(IsAdminUser,),
+    )
+    def upload_image(self, request, pk=None):
+        """Endpoint for uploading image to specific airplane"""
+        airplane = self.get_object()
+        serializer = self.get_serializer(airplane, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FlightViewSet(viewsets.ModelViewSet):
